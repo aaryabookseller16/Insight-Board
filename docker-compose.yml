@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: insight
+      POSTGRES_PASSWORD: insight
+      POSTGRES_DB: insightboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+
+  api:
+    build: ./api
+    environment:
+      PORT: "8080"
+      DATABASE_URL: "postgres://insight:insight@db:5432/insightboard"
+      JWT_SECRET: "dev_super_secret_change_me"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
