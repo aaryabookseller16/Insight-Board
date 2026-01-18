@@ -1,0 +1,61 @@
+# ================================
+# Node / JavaScript
+# ================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ================================
+# Environment variables / secrets
+# ================================
+.env
+.env.*
+!.env.example
+
+# ================================
+# Build outputs
+# ================================
+dist/
+build/
+coverage/
+
+# Vite cache
+.vite/
+
+# ================================
+# Logs
+# ================================
+logs/
+*.log
+
+# ================================
+# Docker
+# ================================
+docker-data/
+*.pid
+
+# ================================
+# Database / local state
+# ================================
+*.sqlite
+*.sqlite3
+*.db
+
+# ================================
+# OS / Editor junk
+# ================================
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+!.vscode/extensions.json
+
+# ================================
+# Misc
+# ================================
+.cache/
+.tmp/
+temp/
