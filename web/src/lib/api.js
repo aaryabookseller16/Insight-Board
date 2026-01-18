@@ -1,35 +1,119 @@
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:4000";
+// web/src/lib/api.js
+//
+// PURPOSE
+// -------
+// Central place for ALL frontend → backend requests.
+//
+// WHY THIS EXISTS
+// ---------------
+// - Keeps fetch logic (base URL, headers, error handling) consistent.
+// - Automatically attaches the JWT token to protected endpoints.
+// - Prevents copy/pasting fetch() everywhere.
+//
+// HOW TO USE
+// ----------
+// import { api } from "../lib/api";
+// const me = await api.me();
+//
+// IMPORTANT
+// ---------
+// This file does NOT "secure" anything.
+// Security happens on the backend via requireAuth middleware.
+// This file just sends the Authorization header when we have a token.
 
-function getToken() {
-  return localStorage.getItem("token");
-}
+import { getToken } from "./auth.js";
 
-async function request(path, { method = "GET", body } = {}) {
-  const headers = { "Content-Type": "application/json" };
+// In dev with Docker Compose, your backend is usually on localhost:3001 or similar.
+// Set this to match your actual backend port.
+// If you use Vite proxy, you can set BASE_URL = "" and fetch("/kpis/summary") etc.
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
+/**
+ * request(path, options)
+ *
+ * Minimal fetch wrapper that:
+ * - Adds JSON headers
+ * - Adds Authorization: Bearer <token> when available
+ * - Converts non-2xx responses into a thrown Error with a readable message
+ */
+async function request(path, options = {}) {
   const token = getToken();
-  if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
+  // Default headers for JSON APIs.
+  // We merge with any custom headers the caller passes.
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {}),
+  };
+
+  // If we have a token, attach it.
+  // Backend expects: Authorization: Bearer <token>
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const res = await fetch(`${BASE_URL}${path}`, {
+    ...options,
     headers,
-    body: body ? JSON.stringify(body) : undefined,
   });
 
-  const text = await res.text();
-  let data;
-  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-
-  if (!res.ok) {
-    const msg = (data && data.error) || `Request failed: ${res.status}`;
-    throw new Error(msg);
+  // Try to parse JSON response (even for error cases).
+  // If parsing fails, we fallback to a generic message.
+  let data = null;
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
   }
+
+  // If response is not OK (e.g. 401, 500), throw a helpful error.
+  if (!res.ok) {
+    const message =
+      (data && (data.error || data.message)) ||
+      `Request failed (${res.status})`;
+    throw new Error(message);
+  }
+
   return data;
 }
 
+/**
+ * api
+ *
+ * Small typed(ish) client around our backend routes.
+ * Keep endpoints grouped and named clearly so it stays maintainable.
+ */
 export const api = {
-  login: (email, password) => request("/auth/login", { method: "POST", body: { email, password } }),
-  me: () => request("/me"),
-  summary: () => request("/kpis/summary"),
-  daily: () => request("/kpis/daily"),
-  top: () => request("/kpis/top"),
+  // Auth
+  register(email, password, role) {
+    return request("/auth/register", {
+      method: "POST",
+      body: JSON.stringify({ email, password, role }),
+    });
+  },
+
+  login(email, password) {
+    return request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+  },
+
+  // User
+  me() {
+    return request("/me", { method: "GET" });
+  },
+
+  // KPIs
+  summary() {
+    return request("/kpis/summary", { method: "GET" });
+  },
+
+  daily() {
+    return request("/kpis/daily", { method: "GET" });
+  },
+
+  top() {
+    return request("/kpis/top", { method: "GET" });
+  },
 };

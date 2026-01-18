@@ -6,8 +6,11 @@ const cors = require("cors");
 require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
-const kpiRoutes = require("./routes/kpis");
-const { requireAuth } = require("./middleware/auth");
+const meRouter = require("./routes/me");
+const kpisRouter = require("./routes/kpis");
+
+// JWT auth middleware used to protect routes
+const { requireAuth } = require("./middleware/requireAuth");
 
 const app = express();
 
@@ -25,16 +28,14 @@ app.get("/health", (_req, res) => {
 // Auth routes do NOT require authentication
 app.use("/auth", authRoutes);
 
-// Example protected route: returns the decoded JWT payload
-app.get("/me", requireAuth, (req, res) => {
-  res.json({ user: req.user });
-});
+// /me route returns the current user (JWT payload). Protected by JWT.
+app.use("/me", requireAuth, meRouter);
 
-// KPI routes DO require authentication (enforced by the middleware)
-app.use("/kpis", requireAuth, kpiRoutes);
+// KPI routes require authentication
+app.use("/kpis", requireAuth, kpisRouter);
 
 // Start server
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`API listening on :${port}`);
 });
