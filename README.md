@@ -170,38 +170,5 @@ UI runs at: http://localhost:5173
 
 ---
 
-## Why This Project Matters
-
-This project demonstrates:
-- Designing business-driven KPIs
-- Secure JWT authentication
-- RBAC and multi-tenant data access
-- Efficient time-series aggregation
-- Full-stack ownership (DB → API → UI)
-
-It mirrors the type of dashboards used internally at SaaS companies, fintechs, and data platforms.
-
----
-
-## Engineering Decisions (Interview Notes)
-
-- Money stored in cents → avoids float precision bugs
-- Indexes on created_at → fast dashboard queries
-- JWT + middleware → stateless auth
-- Backend-enforced RBAC → no data leakage
-- Minimal UI dependencies → clarity over flash
-
----
-
-## Possible Extensions
-
-- Redis caching for hot KPIs
-- Date range filters (7 / 30 / 90 days)
-- CSV export
-- Alerting on revenue drops
-- Real-time ingestion (Kafka / streams)
-
----
-
 ## License
 MIT
