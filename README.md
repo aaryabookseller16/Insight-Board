@@ -83,7 +83,9 @@ Money is stored in **cents** to avoid floating-point bugs.
 ## API Endpoints
 
 ### Auth
-- POST /auth/register
+- POST /auth/register — always creates a `role: 'user'` account, regardless of what
+  the request body sends. There is no self-service path to `admin` — those accounts
+  are provisioned only via `db/seed.sql` or direct SQL.
 - POST /auth/login
 
 ### User
@@ -160,6 +162,19 @@ npm run dev
 UI runs at: http://localhost:5173
 
 ---
+
+## Tests
+
+```bash
+cd api && npm test     # vitest + supertest, against a real Postgres
+cd web && npm test     # vitest + @testing-library/react
+```
+
+## Deployment
+
+Deployed as two Vercel projects — `api/` as a single serverless function
+(`api/vercel.json`), `web/` as a static Vite build — backed by Neon or Supabase
+Postgres. See `CLAUDE.md` for the full env var list and deploy order.
 
 ## Demo Accounts
 
