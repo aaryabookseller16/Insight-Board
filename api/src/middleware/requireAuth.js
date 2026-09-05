@@ -17,6 +17,7 @@
 // - Frontend "Protected route" is just UX; backend is enforcement.
 
 const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../config");
 
 function requireAuth(req, res, next) {
   // Expected header format: Authorization: Bearer <token>
@@ -37,7 +38,7 @@ function requireAuth(req, res, next) {
 
   try {
     // Verify signature + expiry; throws if invalid/expired.
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET);
 
     // Attach user identity to request so routes can use req.user.id / req.user.role.
     req.user = payload;

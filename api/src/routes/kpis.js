@@ -24,9 +24,11 @@
 
 const express = require("express");
 const { pool } = require("../db/pool");
-const { requireAuth } = require("../middleware/requireAuth");
 
 const router = express.Router();
+
+// requireAuth is applied once, at the mount point in index.js — no need to
+// re-apply it per route below.
 
 /**
  * buildScope(req.user)
@@ -53,7 +55,7 @@ function buildScope(user) {
  * - admin: active_users (distinct users in events)
  * - user:  active_days  (distinct days with events for that user)
  */
-router.get("/summary", requireAuth, async (req, res) => {
+router.get("/summary", async (req, res) => {
   const { isAdmin, whereSql, params } = buildScope(req.user);
 
   try {
@@ -115,7 +117,7 @@ router.get("/summary", requireAuth, async (req, res) => {
  *
  * Frontend can divide by 100 to display dollars.
  */
-router.get("/daily", requireAuth, async (req, res) => {
+router.get("/daily", async (req, res) => {
   const { whereSql, params } = buildScope(req.user);
 
   try {
@@ -159,7 +161,7 @@ router.get("/daily", requireAuth, async (req, res) => {
  * Returns top 5 event types by count:
  *   [{ type: 'sale', count: 210 }, ...]
  */
-router.get("/top", requireAuth, async (req, res) => {
+router.get("/top", async (req, res) => {
   const { whereSql, params } = buildScope(req.user);
 
   try {
