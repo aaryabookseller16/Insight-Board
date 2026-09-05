@@ -66,12 +66,16 @@ async function request(path, options = {}) {
     data = null;
   }
 
-  // If response is not OK (e.g. 401, 500), throw a helpful error.
+  // If response is not OK (e.g. 401, 500), throw a helpful error. Callers
+  // that need to react to auth failures specifically should check
+  // `err.status === 401` rather than matching on the message text.
   if (!res.ok) {
     const message =
       (data && (data.error || data.message)) ||
       `Request failed (${res.status})`;
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = res.status;
+    throw error;
   }
 
   return data;
@@ -84,14 +88,8 @@ async function request(path, options = {}) {
  * Keep endpoints grouped and named clearly so it stays maintainable.
  */
 export const api = {
-  // Auth
-  register(email, password, role) {
-    return request("/auth/register", {
-      method: "POST",
-      body: JSON.stringify({ email, password, role }),
-    });
-  },
-
+  // Auth. No register() here — InsightBoard accounts are provisioned via
+  // db/seed.sql or direct SQL, not self-service (see api/src/routes/auth.js).
   login(email, password) {
     return request("/auth/login", {
       method: "POST",
