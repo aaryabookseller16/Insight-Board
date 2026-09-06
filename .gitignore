@@ -59,3 +59,7 @@ Thumbs.db
 .cache/
 .tmp/
 temp/
+
+# Vault-local documentation (local file paths, session notes) — not part of
+# this project's public history.
+CLAUDE.md
