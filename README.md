@@ -7,6 +7,8 @@ It aggregates raw events into high-level KPIs such as revenue, activity, and tre
 
 This is a **realistic internal tool**, not a toy app.
 
+**Live app:** [insight-board-sigma-red.vercel.app](https://insight-board-sigma-red.vercel.app)
+
 ---
 
 ## What InsightBoard Shows
@@ -172,9 +174,14 @@ cd web && npm test     # vitest + @testing-library/react
 
 ## Deployment
 
-Deployed as two Vercel projects — `api/` as a single serverless function
-(`api/vercel.json`), `web/` as a static Vite build — backed by Neon or Supabase
-Postgres. See `CLAUDE.md` for the full env var list and deploy order.
+The production release uses two Vercel projects backed by Neon Postgres:
+
+- Dashboard: [insight-board-sigma-red.vercel.app](https://insight-board-sigma-red.vercel.app)
+- API: [insight-board-api.vercel.app](https://insight-board-api.vercel.app)
+
+Deploy `api/` first with `DATABASE_URL`, `JWT_SECRET`, and
+`CORS_ALLOWED_ORIGINS`. Then deploy `web/` with `VITE_API_URL` set to the API
+URL. The API's CORS allowlist must contain the dashboard's canonical URL.
 
 ## Demo Accounts
 

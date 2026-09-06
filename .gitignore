@@ -63,3 +63,5 @@ temp/
 # Vault-local documentation (local file paths, session notes) — not part of
 # this project's public history.
 CLAUDE.md
+.vercel/
+.env.local
